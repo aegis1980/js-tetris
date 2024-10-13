@@ -1,0 +1,21 @@
+body {
+    background: #000;
+    margin: 0;
+    overflow: hidden;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+#gameCanvas {
+    display: block;
+    margin: 20px auto;
+    background: #111;
+    border: 2px solid #fff;
+}
+
+#score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 24px;
+}
