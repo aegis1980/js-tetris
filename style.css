@@ -1,21 +1,63 @@
 body {
     background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
     margin: 0;
-    overflow: hidden;
-    color: #fff;
     font-family: Arial, sans-serif;
+    color: #fff;
 }
 
-#gameCanvas {
+#game {
+    display: flex;
+    align-items: flex-start;
+}
+
+#tetris {
+    border: 1px solid #fff;
+}
+
+#sidebar {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+}
+
+#hold, #nextPiece, #level, #bonus {
+    margin-bottom: 20px;
+}
+
+#hold h3, #nextPiece h3, #level h3, #bonus h3 {
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+#holdCanvas, #nextCanvas {
+    border: 1px solid #fff;
+    background-color: #000;
     display: block;
-    margin: 20px auto;
-    background: #111;
-    border: 2px solid #fff;
+    margin: 0 auto;
 }
 
-#score {
-    position: absolute;
-    top: 20px;
-    left: 20px;
+#bonusCount, #score, #levelDisplay {
     font-size: 24px;
+    text-align: center;
+}
+
+#controls {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+    color: #fff;
+}
+
+#controls p {
+    margin: 0;
+}
+
+#controls strong {
+    color: #FFD700; /* Highlighted color for key names */
 }

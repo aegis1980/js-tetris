@@ -10,7 +10,7 @@ const canvasHeight = canvas.height;
 const scale = 20;
 context.scale(scale, scale);
 
-// Create the arena (game board)
+// Arena dimensions
 const arenaWidth = canvasWidth / scale;
 const arenaHeight = canvasHeight / scale;
 const arena = createMatrix(arenaWidth, arenaHeight);
@@ -29,9 +29,19 @@ const paddle = {
     width: 3,
     height: 0.5,
     x: (arenaWidth - 3) / 2,
-    y: arenaHeight - 1,
+    y: arenaHeight+0.1,
     speed: 0.2, // Adjust as needed
     dx: 0,
+};
+
+// Ball properties
+const ball = {
+    radius: 0.3,
+    x: arenaWidth / 2,
+    y: paddle.y - 1, // Start above the paddle
+    speed: 0.15, // Adjust as needed
+    dx: 0.15, // Horizontal velocity
+    dy: -0.15, // Vertical velocity (upwards)
 };
 
 // Gravity
@@ -106,7 +116,7 @@ function createPiece(type) {
     }
 }
 
-// Draw functions
+// Drawing functions
 function draw() {
     // Clear the canvas
     context.fillStyle = '#000';
@@ -115,6 +125,7 @@ function draw() {
     drawMatrix(arena, { x: 0, y: 0 });
     drawMatrix(player.matrix, player.pos);
     drawPaddle();
+    drawBall();
 }
 
 function drawMatrix(matrix, offset) {
@@ -135,6 +146,14 @@ function drawMatrix(matrix, offset) {
 function drawPaddle() {
     context.fillStyle = '#fff';
     context.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+}
+
+function drawBall() {
+    context.beginPath();
+    context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    context.fillStyle = '#fff';
+    context.fill();
+    context.closePath();
 }
 
 // Collision detection
@@ -218,7 +237,7 @@ function playerDrop() {
         player.pos.y--;
         merge(arena, player);
         playerReset();
-        arenaSweep();
+        areqadsaqadnaSweep();
         updateScore();
     }
     dropCounter = 0;
@@ -270,29 +289,47 @@ function updateScore() {
         'Score: ' + player.score;
 }
 
-// Check collision with paddle
-function checkPaddleCollision() {
-    const tetrominoBottomY = player.pos.y + player.matrix.length;
-    const paddleY = paddle.y;
-
-    if (tetrominoBottomY >= paddleY && player.dy > 0) {
-        for (let y = 0; y < player.matrix.length; y++) {
-            for (let x = 0; x < player.matrix[y].length; x++) {
-                if (player.matrix[y][x] !== 0) {
-                    const tetrominoX = player.pos.x + x;
-
-                    if (
-                        tetrominoX >= paddle.x &&
-                        tetrominoX <= paddle.x + paddle.width
-                    ) {
-                        // Reflect the tetromino upwards
-                        player.dy = -player.speed * 20; // Adjust multiplier as needed
-                        return;
-                    }
-                }
-            }
-        }
+// Check collision between ball and paddle
+function checkBallPaddleCollision() {
+    if (
+        ball.y + ball.radius >= paddle.y &&
+        ball.y - ball.radius <= paddle.y + paddle.height &&
+        ball.x + ball.radius >= paddle.x &&
+        ball.x - ball.radius <= paddle.x + paddle.width
+    ) {
+        ball.dy = -ball.dy;
+        ball.y = paddle.y - ball.radius; // Adjust position to prevent sticking
     }
+}
+
+// Check collision between ball and tetrominoes
+function checkBallTetrominoCollision() {
+    const ballGridX = Math.floor(ball.x);
+    const ballGridY = Math.floor(ball.y);
+
+    if (
+        ballGridY >= 0 &&
+        ballGridY < arenaHeight &&
+        ballGridX >= 0 &&
+        ballGridX < arenaWidth &&
+        arena[ballGridY][ballGridX] !== 0
+    ) {
+        // Remove the block
+        arena[ballGridY][ballGridX] = 0;
+        ball.dy = -ball.dy;
+
+        // Update score
+        player.score += 5;
+        updateScore();
+    }
+}
+
+// Reset the ball when it goes out of bounds
+function resetBall() {
+    ball.x = arenaWidth / 2;
+    ball.y = paddle.y - 1;
+    ball.dx = (Math.random() * 0.2 - 0.1) * ball.speed;
+    ball.dy = -ball.speed;
 }
 
 // Game loop variables
@@ -300,14 +337,16 @@ let dropCounter = 0;
 let dropInterval = 1000; // Not used in this hybrid version
 
 let lastTime = 0;
+let s = 0.1
+
 function update(time = 0) {
     const deltaTime = time - lastTime;
     lastTime = time;
 
-    // Apply gravity
+    // Apply gravity to tetromino
     player.dy += gravity * deltaTime;
 
-    // Update player position
+    // Update tetromino position
     player.pos.y += player.dy * deltaTime;
 
     // Update paddle position
@@ -320,18 +359,38 @@ function update(time = 0) {
         paddle.x = arenaWidth - paddle.width;
     }
 
-    // Collision with arena
-    if (collide(arena, player)) {
-        player.pos.y -= player.dy * deltaTime;
-        merge(arena, player);
-        playerReset();
-        arenaSweep();
-        updateScore();
-        player.dy = 0;
+    // Update ball position
+   
+    ball.x += ball.dx * deltaTime *s; // Multiply by 60 to normalize speed
+    ball.y += ball.dy * deltaTime *s;
+
+    // Ball-wall collisions
+    if (ball.x + ball.radius > arenaWidth || ball.x - ball.radius < 0) {
+        ball.dx = -ball.dx;
+    }
+    if (ball.y - ball.radius < 0) {
+        ball.dy = -ball.dy;
+    }
+    if (ball.y + ball.radius > arenaHeight) {
+        // Ball missed by paddle; reset ball position
+        resetBall();
     }
 
-    // Collision with paddle
-    checkPaddleCollision();
+    // // Collision checks
+    // if (collide(arena, player)) {
+    //     player.pos.y -= player.dy * deltaTime ;
+    //     merge(arena, player);
+    //     playerReset();
+    //     arenaSweep();
+    //     updateScore();
+    //     player.dy = 0;
+    // }
+
+    // Check collisions
+    // checkPaddleCollision(); // Optional: disable paddle-tetromino collision
+
+    checkBallPaddleCollision();
+    checkBallTetrominoCollision();
 
     draw();
     requestAnimationFrame(update);

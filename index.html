@@ -2,12 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Hybrid Tetris-Arkanoid Game</title>
+    <title>Tetris Game with Levels and Key Controls</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="gameCanvas" width="240" height="400"></canvas>
-    <div id="score">Score: 0</div>
-    <script src="game.js"></script>
+    <div id="game">
+        <canvas id="tetris" width="240" height="400"></canvas>
+        <div id="sidebar">
+            <div id="level">
+                <h3>Level</h3>
+                <div id="levelDisplay">1</div>
+            </div>
+            <div id="bonus">
+                <h3>Bonus Pieces</h3>
+                <div id="bonusCount">0 / 3</div>
+            </div>
+            <div id="score">Score: 0</div>
+            <div id="nextPiece">
+                <h3>Next Piece</h3>
+                <canvas id="nextCanvas" width="80" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Controls Guide -->
+    <div id="controls">
+        <h3>Controls</h3>
+        <p>
+            <strong>Left Arrow (←):</strong> Move Left &nbsp;|&nbsp;
+            <strong>Right Arrow (→):</strong> Move Right &nbsp;|&nbsp;
+            <strong>Down Arrow (↓):</strong> Soft Drop &nbsp;|&nbsp;
+            <strong>Q:</strong> Rotate Counterclockwise &nbsp;|&nbsp;
+            <strong>W:</strong> Rotate Clockwise &nbsp;|&nbsp;
+            <strong>Shift:</strong> Hold Piece &nbsp;|&nbsp;
+            <strong>Spacebar:</strong> Use Bonus &nbsp;|&nbsp;
+            <strong>P:</strong> Pause/Unpause
+        </p>
+    </div>
+
+    <script src="tetris.js"></script>
 </body>
 </html>
